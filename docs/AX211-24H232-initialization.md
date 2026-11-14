@@ -91,3 +91,15 @@ IORegistry 的 IntelBluetoothFirmware 实例在 8087:0033 上报告 fw_name 为 
 两组本地实验包共用 OpenIntelWireless 源码 a414375505fa3b014be32f8fca31b5bbfdf9f10f、同一套驱动对象文件、x86_64 CLT 和相同 Info.plist。候选组使用 linux-firmware 1399ab86b447b949e71ae9858fbc8f942b7bff4c 的 BT_Solar_REL82200_23.50.26292.82200 原始 SFI/DDC。候选 SFI 哈希 f14d059858623283f9e1bca3c9f5c5edc272cf538959d8f194327e3a9af5a75a，DDC 哈希 fe272982577efdc289cfe3e8bedafca607c0b7d6c9df1aab1880e22ef930d077。两包均反解验证 85 个嵌入资源，只有目标 SFI 和 DDC 不同。候选相对原 EFI 版本新增的五个未解析导入均可在本机内核符号表查到；这不证明 KPI 可链接或已加载。kextlibs 在当前环境未解析出依赖库。未更改 bluetoothd 或能力位。
 
 真机比较须先验证重编对照可加载、加载固件的版本及原失效顺序，然后用相同启动和硬件断电条件测试候选。若对照无法重现基线，或候选启动后无法确认控制器实际运行了不同固件，不判定固件效果。记录 0x1001、0x1002 和 0x2003、新查询与完成事件、首退原因。如果候选仍选 V2 并在提交前返回 628，则此固件未解决已定位的症状。固件包尚未部署。
+
+## 候选固件冷启动验收，2026-11-14 23:20
+
+本次加载 IntelBluetoothFirmware UUID B0661BCB-BBBA-3CCD-A8FE-06C0750785AC。23:21:28 首次进程 PID 150 保留 408 日志，控制器支持命令位图索引 41 从对照组的 C8 变为 E8，V2 掩码 20 已置位。LE 特性字节 [3] 从 38 变为 3C，仍满足原有选择 V2 的条件。首次进程越过旧失败点；本次查询未见 V2 的 628 或重启日志。无本次 V2 完成包可供逐字节核对。
+
+23:27 系统报告 USB 蓝牙已开启，地址非零，版本 v12568 c12568，AirPods 已连接；用户确认为 AirPods Pro 2。蓝牙进程仍为 PID 150，可访问的系统诊断目录中本次启动新增 bluetoothd IPS 为 0。itlwm 2.3.0 已加载。未主动断开用户的耳机，既有连接不能证明新设备配对、断开重连或音频质量。此结果验证测试 U 盘候选包，不代表内置 EFI 已更新。
+
+## 外设与回归复核，2026-11-15
+
+用户确认 Mac 能发现并连接 Sony WH-CH520，随后报告耳机断开、重连和播放验证通过。用户随后确认这是该耳机与本机的首次配对。用户确认 HeliPort Wi-Fi 实际联网正常。iPhone 15 Pro Max 能发现 Mac，从手机发起配对时报 “MacBook Pro” is not supported；Mac 的蓝牙设置列表仍未显示 iPhone。
+
+00:16，bluetoothd 仍为本次启动的 PID 150，系统诊断目录中本次启动新增 bluetoothd IPS 为 0。系统识别 NVIDIA GeForce RTX 3050 Laptop GPU，两路显示输出在线，分别为 2560×1440 @ 60 Hz 和 3440×1440 @ 250 Hz。本轮已验证测试 U 盘引导 macOS；另一系统的实际引导待确认。
