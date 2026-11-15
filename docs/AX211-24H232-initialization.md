@@ -103,3 +103,7 @@ IORegistry 的 IntelBluetoothFirmware 实例在 8087:0033 上报告 fw_name 为 
 用户确认 Mac 能发现并连接 Sony WH-CH520，随后报告耳机断开、重连和播放验证通过。用户随后确认这是该耳机与本机的首次配对。用户确认 HeliPort Wi-Fi 实际联网正常。iPhone 15 Pro Max 能发现 Mac，从手机发起配对时报 “MacBook Pro” is not supported；Mac 的蓝牙设置列表仍未显示 iPhone。
 
 00:16，bluetoothd 仍为本次启动的 PID 150，系统诊断目录中本次启动新增 bluetoothd IPS 为 0。系统识别 NVIDIA GeForce RTX 3050 Laptop GPU，两路显示输出在线，分别为 2560×1440 @ 60 Hz 和 3440×1440 @ 250 Hz。本轮已验证测试 U 盘引导 macOS；另一系统的实际引导待确认。
+
+## 内置硬盘引导验收
+
+用户确认内置硬盘引导 macOS 成功。启动后实查 IntelBluetoothFirmware 2.5.0 的加载 UUID 为 B0661BCB-BBBA-3CCD-A8FE-06C0750785AC，控制器状态为开启，固件为 v12568 c12568。另一系统的实际引导尚待确认。

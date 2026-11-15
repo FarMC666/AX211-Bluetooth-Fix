@@ -2,7 +2,7 @@
 
 适用于本机 Intel AX211（USB `8087:0033`）和 macOS Sequoia 15.8.2（24H232，x86_64）。原固件下蓝牙无法稳定开启，`bluetoothd` 会反复退出。更换 AX211 固件后，已在测试 U 盘冷启动环境完成蓝牙外设发现、首次配对、连接、重连和音频播放验证。
 
-**当前状态为发布候选版。** macOS 和外设验收已通过，另一系统的实际引导待测。内置 EFI 保留原配置。
+**当前状态为发布候选版。** macOS 和外设验收已通过，内置硬盘 OpenCore 引导 macOS 已通过，另一系统的实际引导待测。
 
 ## 安装包
 
@@ -33,6 +33,8 @@ shasum -a 256 dist/AX211-24H232-firmware-candidate.zip
 
 **回滚：** 从内置 OpenCore 启动 macOS，用第 1 步保存的原始 Kext 恢复测试 U 盘上的同名目录，再关机冷启动。
 
+迁移到内置硬盘前，保留可启动的测试 U 盘，并单独备份内置 OpenCore 的原 Kext。在内置 EFI 中替换同名 Kext 后，拔下 U 盘，从硬盘冷启动并核对上述 UUID。若需恢复，可由测试 U 盘启动并还原内置 EFI 的原件。
+
 ## 真机验收
 
 | 项目 | 实测结果 |
@@ -41,10 +43,14 @@ shasum -a 256 dist/AX211-24H232-firmware-candidate.zip
 | 索尼 WH-CH520 | Mac 发现耳机并完成**首次配对**，断开后可重连并播放音频。 |
 | AirPods Pro 2 | 已通过 iCloud 绑定的耳机可连接。 |
 | Wi-Fi 与显示 | itlwm 2.3.0 配合 HeliPort 可正常联网。RTX 3050 Laptop GPU 已识别，两路显示输出在线。 |
-| 引导 | 已从测试 U 盘启动 macOS，另一系统引导待测。 |
+| 引导 | 测试 U 盘和内置硬盘均已成功引导 macOS；另一系统引导待测。 |
 
 **已知限制：** iPhone 15 Pro Max 可以发现 Mac；从手机发起配对提示 “MacBook Pro” is not supported，Mac 的蓝牙设置也未列出该手机。蓝牙个人热点尚未验证。AirDrop、Handoff 不在本次适配范围内。
 
 ## 修复依据
 
 两份实验包使用相同的驱动代码，85 个嵌入资源中只有本机对应的 SFI 和 DDC 不同。旧固件的命令位图声明仅支持 LE Read Buffer Size V1，macOS 选择 V2 后在本地返回 628 并进入初始化失败路径。候选固件 `BT_Solar_REL82200_23.50.26292.82200` 声明支持 V2，同一系统成功完成初始化。修复通过加载固件生效，无需修改 `bluetoothd`。抓包、固件来源和对照结果见[诊断与验收记录](docs/AX211-24H232-initialization.md)。
+
+## 源码与许可
+
+驱动源码基线为 [OpenIntelWireless/IntelBluetoothFirmware](https://github.com/OpenIntelWireless/IntelBluetoothFirmware/tree/a414375505fa3b014be32f8fca31b5bbfdf9f10f)，候选包中的目标 SFI 和 DDC 来自 [linux-firmware 的固定提交](https://gitlab.com/kernel-firmware/linux-firmware/-/tree/1399ab86b447b949e71ae9858fbc8f942b7bff4c/intel)。两个压缩包的 `licenses/` 目录包含驱动和固件许可。仓库中的 `scripts/build-baseline.sh` 用于构建诊断阶段的 BlueToolFixup 基线，`src/ax211_selection.hpp` 用于离线验证命令选择条件；实际部署使用上面的固件包。
